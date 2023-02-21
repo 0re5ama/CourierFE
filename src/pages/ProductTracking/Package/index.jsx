@@ -5,7 +5,6 @@ import {
     ProFormText,
 } from '@ant-design/pro-components';
 import { Button, List, Popconfirm, Typography } from 'antd';
-export const baseURL = process.env.BASE_URL || 'https://localhost:7270/api';
 
 import { useEffect, useRef, useState } from 'react';
 import API from '../../../services/ProductTracking/index';

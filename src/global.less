@@ -52,13 +52,13 @@ ol {
 
 .bilti-header {
     display: flex;
-    width: 65%;
     align-items: flex-start;
     justify-content: space-between;
     height: 8rem;
     padding-top: 2rem;
 }
 
+/* TODO: remove all the important */
 .ant-pro-form-login-header {
     height: 100% !important;
 }
@@ -87,7 +87,7 @@ ol {
 }
 
 .bilti-footer h4, .bilti-footer ol {
-    padding-left: 4rem;
+    padding-left: 0;
     font-size: 12px !important;
 }
 
@@ -111,20 +111,27 @@ table.bilti-table td {
     flex-direction: row;
     align-items: flex-end;
     justify-content: space-between;
-    padding: 0 4rem;
     height:4rem;
+}
+
+.receipt-qr {
+    width: 12em;
+    height: 12em;
 }
 
 .qr {
     width: 8em;
     height: 8em;
-    background-color: #ccc;
 }
 
+/*
+.receipt-logo {
+    width: 12em;
+}
+*/
+
 .logo {
-    width: 5em;
     height: 5em;
-    background-color: #ccc;
 }
 
 .bilti-main {
@@ -194,13 +201,14 @@ table.bilti-table td {
  }
 
 .Receipt-Form {
-    margin: 2rem 4rem;
+    margin: 2rem 0;
 }
 
 .Consign-Receipt{
     width: 1584px;
     height: 1190px;
     margin: 0 auto;
+	padding: 4em 6em;
 }
 
 .Consign-Row {
@@ -215,12 +223,18 @@ table.bilti-table td {
 
 .Consign-Col {
     border-right: 1px solid #000;
+	padding: .5em;
 }
 
 .Consign-Field,
 .Consign-Title,
 .Receipt-Title {
-    padding: 12px !important;
+    /* padding: 5px 12px; */
+}
+
+.Consign-Form textarea {
+	resize: none;
+	height: 2em;
 }
 
 .p-signvalue {
@@ -412,4 +426,8 @@ w-100 {
     content: 'Please select';
     color: #aaa;
     padding-left: .5em;
+}
+
+.Consign-Form .ant-form-item {
+	margin-bottom: 0;
 }

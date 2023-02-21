@@ -1,9 +1,12 @@
 import PrintComponent from '@/components/PrintComponent';
+import { baseURL } from '@/services/api';
 import { UploadOutlined } from '@ant-design/icons';
 import {
     ProForm,
     ProFormDatePicker,
+    ProFormDependency,
     ProFormDigit,
+    ProFormRadio,
     ProFormSelect,
     ProFormTextArea,
 } from '@ant-design/pro-components';
@@ -24,8 +27,8 @@ import {
 } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import API from '../../../services/ProductTracking/index';
+const converter = require('number-to-words');
 
-export const baseURL = process.env.BASE_URL || 'https://localhost:7270/api';
 const props = {
     action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
     listType: 'picture',
@@ -202,7 +205,6 @@ export default ({ data }) => {
 
     const getItems = async () => {
         const resItems = await API.item.get();
-        console.log(resItems);
         return resItems?.data?.map((x) => ({
             label: x.name,
             value: x.id,
@@ -215,14 +217,12 @@ export default ({ data }) => {
             key: 'id',
             hidden: true,
         },
-
         {
             title: 'ItemName',
-            dataIndex: 'itemId',
-            key: 'itemId',
-            getOptions: getItems,
-            type: 'select',
-            editable: true,
+            dataIndex: 'itemName',
+            key: 'itemName',
+            type: 'input',
+            editable: !disabled,
         },
         {
             title: 'CTN',
@@ -230,21 +230,21 @@ export default ({ data }) => {
             key: 'quantity',
             type: 'num',
 
-            editable: disabled == true ? false : true,
+            editable: !disabled,
         },
         {
             title: 'Photo',
             dataIndex: 'photo',
             key: 'photo',
             type: 'photo',
-            editable: disabled == true ? false : true,
+            editable: !disabled,
         },
         {
             title: 'Remarks',
             dataIndex: 'remarks',
             key: 'remarks',
             type: 'input',
-            editable: disabled == true ? false : true,
+            editable: !disabled,
         },
     ];
     const handleAdd = () => {
@@ -289,7 +289,7 @@ export default ({ data }) => {
             render: (_, record) => {
                 return (
                     <span>
-                        {items.length >= 0 ? (
+                        {items.length >= 0 && !disabled ? (
                             <Popconfirm
                                 title="Sure to delete?"
                                 onConfirm={() => handleDelete(record.key)}
@@ -364,21 +364,6 @@ export default ({ data }) => {
         setAction('A');
     };
 
-    const onFreightChange = () => {
-        const formData = formRef.current.getFieldValue();
-        formRef.current.setFieldsValue({
-            totalAmount: total + formData.freight,
-        });
-        setTotal(total + formData.freight);
-    };
-    const onInsuranceChange = () => {
-        const formData = formRef.current.getFieldValue();
-        formRef.current.setFieldsValue({
-            totalAmount: total + formData.insurance,
-        });
-        setTotal(total + formData.insurance);
-    };
-
     const submit = async (values) => {
         const data = {
             ...values,
@@ -396,10 +381,14 @@ export default ({ data }) => {
                     resConsignment?.data?.id
                 );
 
+                formRef.current.setFieldsValue({
+                    consignmentNo: resConsignment?.data?.consignmentNo,
+                });
+
                 setConsignmentData(resConsignmentDetail?.data);
                 setButtonDisabled(false);
             }
-            await reset();
+            // await reset();
             setItems([]);
         }
     };
@@ -449,7 +438,7 @@ export default ({ data }) => {
                         </Button>,
                         <Button
                             type="default"
-                            key="submit"
+                            key="reset"
                             id="buttonReset"
                             onClick={reset}
                         >
@@ -470,19 +459,18 @@ export default ({ data }) => {
                 autoFocusFirstInput
             >
                 <div className="Consign-Form">
-                    <h4 id="mainTitle" class="ant-typography">
+                    <h4 id="mainTitle" className="ant-typography">
                         Consignment Entry
                     </h4>
                     <Row className="Consign-Row">
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                托运号：Y
-                            </Row>
-                            <Row className="Consign-Title">CONSIGNMENT NO:</Row>
+                        <Col className="Consign-Col border-right-none" span={3}>
+                            托运号：Y
+                            <br />
+                            CONSIGNMENT NO:
                         </Col>
                         <Col className="Consign-Col" span={9}>
                             <ProFormTextArea
-                                disabled={disabled}
+                                disabled={true}
                                 className="textArea"
                                 name="consignmentNo"
                                 fieldProps={{
@@ -491,13 +479,10 @@ export default ({ data }) => {
                                 placeholder=""
                             />
                         </Col>
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                起运站
-                            </Row>
-                            <Row className="Consign-Title">
-                                STARTING STATION:
-                            </Row>
+                        <Col className="Consign-Col border-right-none" span={3}>
+                            起运站
+                            <br />
+                            STARTING STATION:
                         </Col>
                         <Col className="Consign-Col border-right-none" span={9}>
                             <ProFormSelect
@@ -514,18 +499,16 @@ export default ({ data }) => {
                         </Col>
                     </Row>
                     <Row className="Consign-Row">
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                托运日期
-                            </Row>
-                            <Row className="Consign-Title">
-                                CONSIGNMENT DATE:
-                            </Row>
+                        <Col className="Consign-Col border-right-none" span={3}>
+                            托运日期
+                            <br />
+                            CONSIGNMENT DATE:
                         </Col>
                         <Col className="Consign-Col" span={9}>
                             <ProFormDatePicker
                                 disabled={disabled}
                                 name="consignmentDate"
+                                initialValue={new Date()}
                                 fieldProps={{
                                     bordered: false,
                                 }}
@@ -533,10 +516,9 @@ export default ({ data }) => {
                             />
                         </Col>
                         <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                到达站
-                            </Row>
-                            <Row className="Consign-Title">DESTINATION:</Row>
+                            到达站
+                            <br />
+                            DESTINATION:
                         </Col>
                         <Col className="Consign-Col border-right-none" span={9}>
                             <ProFormSelect
@@ -551,11 +533,10 @@ export default ({ data }) => {
                         </Col>
                     </Row>
                     <Row className="Consign-Row">
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                托运日期
-                            </Row>
-                            <Row className="Consign-Title">CONSIGNEE MARK:</Row>
+                        <Col className="Consign-Col border-right-none" span={3}>
+                            托运日期
+                            <br />
+                            CONSIGNEE MARK:
                         </Col>
                         <Col className="Consign-Col" span={9}>
                             <ProFormTextArea
@@ -568,10 +549,9 @@ export default ({ data }) => {
                             />
                         </Col>
                         <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                联系电话
-                            </Row>
-                            <Row className="Consign-Title">TELEPHONE:</Row>
+                            联系电话
+                            <br />
+                            TELEPHONE:
                         </Col>
                         <Col className="Consign-Col border-right-none" span={9}>
                             <ProFormTextArea
@@ -586,64 +566,42 @@ export default ({ data }) => {
                     </Row>
                     <Row className="Consign-Row">
                         <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                货物名称
-                            </Row>
-                            <Row className="Consign-Title">DESCRIPTION</Row>
+                            货物名称 <br /> DESCRIPTION
                         </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Consign-Title">
-                                包装
-                            </Row>
-                            <Row className="Consign-Title">PACKAGE</Row>
-                        </Col>
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                件数
-                            </Row>
-                            <Row className="Consign-Title">QUANTITY</Row>
+                            包装 <br /> PACKAGE
                         </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Consign-Title">
+                            件数 <br /> QUANTITY
+                        </Col>
+                        {/*
+                        <Col className="Consign-Col" span={2}>
+                            <Row className="Consign-Title">
                                 箱号
                             </Row>
                             <Row className="Consign-Title">CTN NO</Row>
+						</Col>
+						*/}
+                        <Col className="Consign-Col" span={2}>
+                            包装费 <br /> PACKING FEE
                         </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Consign-Title">
-                                包装费
-                            </Row>
-                            <Row className="Consign-Title">EXPENSE</Row>
+                            重量 <br /> WEIGHT (KG)
                         </Col>
                         <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                包装费
-                            </Row>
-                            <Row className="Consign-Title">CBM</Row>
+                            包装费 <br /> VOLUME (CBM)
                         </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Consign-Title">
-                                重量
-                            </Row>
-                            <Row className="Consign-Title">WEIGHT</Row>
+                            税款 <br /> TAX
                         </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Consign-Title">
-                                税款
-                            </Row>
-                            <Row className="Consign-Title">TAX</Row>
+                            运费 <br /> FREIGHT
                         </Col>
-                        <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Consign-Title">
-                                运费
-                            </Row>
-                            <Row className="Consign-Title">FREIGHT</Row>
+                        <Col className="Consign-Col" span={3}>
+                            预付款 <br /> ADVANCE
                         </Col>
                         <Col className="Consign-Col border-right-none" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                预付款
-                            </Row>
-                            <Row className="Consign-Title">ADVANCE</Row>
+                            预付款 <br /> BillCharge
                         </Col>
                     </Row>
                     <Row className="Consign-Row">
@@ -665,10 +623,10 @@ export default ({ data }) => {
                                 fieldProps={{
                                     bordered: false,
                                 }}
-                                placeholder="Please Select"
+                                placeholder="Select"
                             />
                         </Col>
-                        <Col className="Consign-Col" span={3}>
+                        <Col className="Consign-Col" span={2}>
                             <ProFormDigit
                                 disabled={disabled}
                                 name="quantity"
@@ -678,6 +636,7 @@ export default ({ data }) => {
                                 placeholder=""
                             />
                         </Col>
+                        {/*
                         <Col className="Consign-Col" span={2}>
                             <ProFormTextArea
                                 disabled={disabled}
@@ -688,20 +647,11 @@ export default ({ data }) => {
                                 placeholder=""
                             />
                         </Col>
+						*/}
                         <Col className="Consign-Col" span={2}>
                             <ProFormDigit
                                 disabled={disabled}
-                                name="expense"
-                                fieldProps={{
-                                    bordered: false,
-                                }}
-                                placeholder=""
-                            />
-                        </Col>
-                        <Col className="Consign-Col" span={3}>
-                            <ProFormTextArea
-                                name="cBM"
-                                disabled={disabled}
+                                name="packingFee"
                                 fieldProps={{
                                     bordered: false,
                                 }}
@@ -712,6 +662,16 @@ export default ({ data }) => {
                             <ProFormDigit
                                 disabled={disabled}
                                 name="weight"
+                                fieldProps={{
+                                    bordered: false,
+                                }}
+                                placeholder=""
+                            />
+                        </Col>
+                        <Col className="Consign-Col" span={3}>
+                            <ProFormDigit
+                                name="volume"
+                                disabled={disabled}
                                 fieldProps={{
                                     bordered: false,
                                 }}
@@ -736,10 +696,9 @@ export default ({ data }) => {
                                     bordered: false,
                                 }}
                                 placeholder=""
-                                onBlur={onFreightChange}
                             />
                         </Col>
-                        <Col className="Consign-Col border-right-none" span={3}>
+                        <Col className="Consign-Col" span={3}>
                             <ProFormDigit
                                 disabled={disabled}
                                 name="advance"
@@ -749,56 +708,72 @@ export default ({ data }) => {
                                 placeholder=""
                             />
                         </Col>
-                    </Row>
-                    <Row className="Consign-Row">
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                价值
-                            </Row>
-                            <Row className="Consign-Title">VALUE</Row>
-                        </Col>
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                保险
-                            </Row>
-                            <Row className="Consign-Title">INSURANCE</Row>
-                        </Col>
-                        <Col className="Consign-Col" span={4}>
-                            <Row className="border-bottom Consign-Title">
-                                代垫款
-                            </Row>
-                            <Row className="Consign-Title">PREPAYMENT</Row>
-                        </Col>
-                        <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Consign-Title">
-                                保险
-                            </Row>
-                            <Row className="Consign-Title">PAYMENT</Row>
-                        </Col>
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="Consign-Title border-bottom">
-                                FREIGHT PREPAID
-                            </Row>
-                            <ProFormTextArea
+                        <Col className="Consign-Col border-right-none" span={3}>
+                            <ProFormDigit
                                 disabled={disabled}
-                                name="freightPrePayment"
+                                name="billCharge"
                                 fieldProps={{
                                     bordered: false,
                                 }}
                                 placeholder=""
                             />
                         </Col>
+                    </Row>
+                    <Row className="Consign-Row">
+                        <Col className="Consign-Col" span={3}>
+                            价值 <br /> VALUE
+                        </Col>
+                        <Col className="Consign-Col" span={3}>
+                            保险 <br /> INSURANCE
+                        </Col>
+                        <Col className="Consign-Col" span={3}>
+                            代垫款 <br /> LOCAL FREIGHT
+                        </Col>
+                        <Col className="Consign-Col" span={3}>
+                            付款方式 <br /> PAYMENT METHOD
+                        </Col>
+                        <Col className="Consign-Col" span={3}>
+                            FREIGHT ON DELIVERY
+                        </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="Consign-Title">合计金额</Row>
+                            合计金额
                         </Col>
                         <Col className="Consign-Col" span={4}>
-                            <Row className="Consign-Field"></Row>
+                            <ProFormDependency
+                                name={[
+                                    'packingFee',
+                                    'tax',
+                                    'freight',
+                                    'insurance',
+                                    'billCharge',
+                                    'localFreight',
+                                    'advance',
+                                ]}
+                            >
+                                {({
+                                    packingFee,
+                                    tax,
+                                    freight,
+                                    insurance,
+                                    localFreight,
+                                    billCharge,
+                                    advance,
+                                }) => (
+                                    <span>
+                                        {converter.toWords(
+                                            (+packingFee || 0) +
+                                                (+tax || 0) +
+                                                (+freight || 0) +
+                                                (+insurance || 0) +
+                                                (+billCharge || 0) +
+                                                (+localFreight || 0)
+                                        )}
+                                    </span>
+                                )}
+                            </ProFormDependency>
                         </Col>
                         <Col className="Consign-Col border-right-none" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                贸易方式
-                            </Row>
-                            <Row className="Consign-Title">TRADE MODE</Row>
+                            贸易方式 <br /> TRADE MODE
                         </Col>
                     </Row>
                     <Row className="Consign-Row">
@@ -820,23 +795,12 @@ export default ({ data }) => {
                                     bordered: false,
                                 }}
                                 placeholder=""
-                                onBlur={onInsuranceChange}
                             />
                         </Col>
-                        <Col className="Consign-Col" span={4}>
-                            <ProFormTextArea
+                        <Col className="Consign-Col" span={3}>
+                            <ProFormDigit
                                 disabled={disabled}
-                                name="prepayment"
-                                fieldProps={{
-                                    bordered: false,
-                                }}
-                                placeholder=""
-                            />
-                        </Col>
-                        <Col className="Consign-Col" span={2}>
-                            <ProFormTextArea
-                                disabled={disabled}
-                                name="payment"
+                                name="localFreight"
                                 fieldProps={{
                                     bordered: false,
                                 }}
@@ -844,31 +808,86 @@ export default ({ data }) => {
                             />
                         </Col>
                         <Col className="Consign-Col" span={3}>
-                            <Row className="Consign-Title border-bottom">
-                                FREIGHT Delivery
-                            </Row>
-                            <ProFormTextArea
-                                disabled={disabled}
-                                name="freightDelivery"
-                                fieldProps={{
-                                    bordered: false,
-                                }}
-                                placeholder=""
+                            <ProFormRadio.Group
+                                name="paymentMethod"
+                                options={[
+                                    {
+                                        label: '现付款',
+                                        value: 1,
+                                    },
+                                    {
+                                        label: '提付款',
+                                        value: 2,
+                                    },
+                                ]}
                             />
                         </Col>
+                        <Col className="Consign-Col" span={3}>
+                            <ProFormDependency
+                                name={[
+                                    'packingFee',
+                                    'tax',
+                                    'freight',
+                                    'insurance',
+                                    'billCharge',
+                                    'localFreight',
+                                    'advance',
+                                ]}
+                            >
+                                {({
+                                    packingFee,
+                                    tax,
+                                    freight,
+                                    insurance,
+                                    localFreight,
+                                    billCharge,
+                                    advance,
+                                }) => (
+                                    <span>
+                                        {(+packingFee || 0) +
+                                            (+tax || 0) +
+                                            (+freight || 0) +
+                                            (+insurance || 0) +
+                                            (+billCharge || 0) +
+                                            (+localFreight || 0) -
+                                            (+advance || 0)}
+                                    </span>
+                                )}
+                            </ProFormDependency>
+                        </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="Consign-Title">TOTAL AMOUNT</Row>
+                            TOTAL AMOUNT
                         </Col>
                         <Col className="Consign-Col" span={4}>
                             <Row className="Consign-Field">
-                                <ProFormDigit
-                                    disabled={disabled}
-                                    name="totalAmount"
-                                    fieldProps={{
-                                        bordered: false,
-                                    }}
-                                    placeholder=""
-                                />
+                                <ProFormDependency
+                                    name={[
+                                        'packingFee',
+                                        'tax',
+                                        'freight',
+                                        'billCharge',
+                                        'insurance',
+                                        'localFreight',
+                                    ]}
+                                >
+                                    {({
+                                        packingFee,
+                                        tax,
+                                        freight,
+                                        billCharge,
+                                        insurance,
+                                        localFreight,
+                                    }) => (
+                                        <span>
+                                            {(+packingFee || 0) +
+                                                (+tax || 0) +
+                                                (+freight || 0) +
+                                                (+insurance || 0) +
+                                                (+localFreight || 0) +
+                                                (+billCharge || 0)}
+                                        </span>
+                                    )}
+                                </ProFormDependency>
                             </Row>
                         </Col>
                         <Col className="Consign-Col border-right-none" span={3}>
@@ -882,28 +901,9 @@ export default ({ data }) => {
                             />
                         </Col>
                     </Row>
-                    <Row>
-                        <Col className="Consign-Row" span={15}>
-                            <Row className="Consign-Field"></Row>
-                        </Col>
-                        <Col className="Consign-Col" span={2}></Col>
-                        <Col
-                            className="Consign-Col Consign-Row border-left-none"
-                            span={4}
-                        ></Col>
-                        <Col
-                            className="Consign-Col Consign-Row border-left-none"
-                            span={3}
-                        >
-                            <Row className="Consign-Field"></Row>
-                        </Col>
-                    </Row>
                     <Row className="Consign-Row border-bottom">
                         <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                备注
-                            </Row>
-                            <Row className="Consign-Title">REMARKS</Row>
+                            备注 <br /> REMARKS
                         </Col>
                         <Col className="Consign-Col" span={14}>
                             <ProFormTextArea
@@ -916,10 +916,7 @@ export default ({ data }) => {
                             />
                         </Col>
                         <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Consign-Title">
-                                收货人签字
-                            </Row>
-                            <Row className="Consign-Title">SIGNATURE</Row>
+                            收货人签字 <br /> SIGNATURE
                         </Col>
                         <Col className="Consign-Col border-right-none" span={4}>
                             <ProFormTextArea
@@ -943,12 +940,12 @@ export default ({ data }) => {
                     </>
                 ) : (
                     <>
-                        <ProFormDigit
+                        {/* <ProFormDigit
                             name="paymentAmount"
                             label="PaidAmount"
                             placeholder=""
                             width="md"
-                        />
+                        /> */}
                         <ProFormSelect
                             options={paymentStatus}
                             width="md"

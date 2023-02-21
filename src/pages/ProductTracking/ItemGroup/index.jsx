@@ -5,7 +5,6 @@ import {
     ProFormText,
 } from '@ant-design/pro-components';
 import { Button, List, Typography } from 'antd';
-export const baseURL = process.env.BASE_URL || 'https://localhost:7270/api';
 
 import { useEffect, useRef, useState } from 'react';
 import API from '../../../services/ProductTracking/index';
@@ -32,7 +31,7 @@ export default () => {
     const getItemGroupDetail = async (id) => {
         const resItemGroupDetail = await API.itemGroup.getById(
             id,
-            setFormLoading
+            // setFormLoading
         );
         formRef.current.setFieldsValue(resItemGroupDetail?.data);
         setAction('E');

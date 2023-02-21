@@ -1,3 +1,4 @@
+import { baseURL } from '@/services/api';
 import {
     ProCard,
     ProForm,
@@ -11,7 +12,6 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { history, useLocation } from 'umi';
 
 import API from '../../../services/ProductTracking/index';
-export const baseURL = process.env.BASE_URL || 'https://localhost:7270/api';
 
 const EditableContext = React.createContext(null);
 const EditableRow = ({ index, ...props }) => {
@@ -391,7 +391,7 @@ export default () => {
     const handleCancel = () => {
         setModalAction(false);
     };
-    const requesturl = `${baseURL}/ExcellExport/${location?.state?.id}`;
+	const requesturl = `${baseURL}/ExcellExport/${location?.state?.id}`;
 
     return (
         <>

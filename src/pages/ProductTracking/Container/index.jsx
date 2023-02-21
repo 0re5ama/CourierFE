@@ -1,3 +1,4 @@
+import { baseURL } from '@/services/api';
 import {
     ProCard,
     ProForm,
@@ -8,7 +9,6 @@ import { useModel } from '@umijs/max';
 import { Button, Form, Input, Modal, Table, Typography } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import API from '../../../services/ProductTracking/index';
-export const baseURL = process.env.BASE_URL || 'https://localhost:7270/api';
 
 const EditableContext = React.createContext(null);
 const EditableRow = ({ index, ...props }) => {

@@ -1,5 +1,4 @@
 import Footer from '@/components/Footer';
-export const baseURL = process.env.BASE_URL || 'https://localhost:7270/api';
 
 import API from '@/services/Security';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
@@ -141,7 +140,7 @@ const Login = () => {
                     {type === 'account' && (
                         <>
                             <ProFormText
-                                name="email"
+                                name="userName"
                                 fieldProps={{
                                     size: 'large',
                                     prefix: (

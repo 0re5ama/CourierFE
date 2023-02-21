@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'umi';
 import API from '../../../services/ProductTracking/index';
 const { Title } = Typography;
-export const baseURL = process.env.BASE_URL || 'https://localhost:7270/api';
 
 export default () => {
     const formRef = useRef();

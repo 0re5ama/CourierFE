@@ -7,7 +7,6 @@ import {
 import { Button, List, Popconfirm, Spin, Typography } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import API from '../../../services/ProductTracking/index';
-export const baseURL = process.env.BASE_URL || 'https://localhost:7270/api';
 
 const { Title } = Typography;
 

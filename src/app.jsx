@@ -18,7 +18,7 @@ const loginPath = '/user/login';
 const fetchMenuData = async () => {
     try {
         const res = await API.menu();
-        return res;
+        return res?.data;
     } catch (error) {
         history.push(loginPath);
     }

@@ -1,6 +1,7 @@
 import { Button, Col, Row, Typography } from 'antd';
 import html2canvas from 'html2canvas';
 import React from 'react';
+const converter = require('number-to-words');
 
 const { Title } = Typography;
 
@@ -28,7 +29,7 @@ export default React.forwardRef(({ data, printRef }) => {
         <>
             <div class="Consign-Receipt" ref={printRef}>
                 <div class="bilti-header">
-                    <div class="logo"></div>
+                    <img class="receipt-logo" src="/ADOLogistics.png" />
                     <div>
                         <div class="title">西藏阿卓仓商贸有限公司</div>
                         <div class="subtitle">
@@ -38,11 +39,14 @@ export default React.forwardRef(({ data, printRef }) => {
                             ADD:西藏拉萨经济技术开发区综合报税区查验区办公区2楼006号
                         </div>
                     </div>
+                    <img class="receipt-qr" src="/qr.jpg" />
                 </div>
                 <div class="bilti-main">
                     <div class="receipt-info">
                         <div class="col contact-Field">
-                            <div class="info">NEPAL : +977-9851067385</div>
+                            <div class="info">
+                                NEPAL : +977-9851067385 / +977-9862276480
+                            </div>
                             <div class="info">RASUWA: +977-9846209252</div>
                             <div class="info">TATOPANI: +977-9846207176</div>
                         </div>
@@ -55,9 +59,7 @@ export default React.forwardRef(({ data, printRef }) => {
                             </div>
                             <div class="info">EMAIL : 1973459072@qq.com</div>
                         </div>
-                        <div class="col">
-                            <div class="qr"></div>
-                        </div>
+                        <div class="col Contact-Field"></div>
                     </div>
                 </div>
                 <div className="Receipt-Form">
@@ -65,22 +67,14 @@ export default React.forwardRef(({ data, printRef }) => {
                     {/*    Consignment Entry*/}
                     {/*</h4>*/}
                     <Row className="Consign-Row">
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                托运号：Y
-                            </Row>
-                            <Row className="Receipt-Title">CONSIGNMENT NO:</Row>
+                        <Col className="Consign-Col border-right-none" span={3}>
+                            托运号：Y <br /> CONSIGNMENT NO:
                         </Col>
                         <Col className="Consign-Col Receipt-Align" span={9}>
                             {data?.consignmentNo}
                         </Col>
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                起运站
-                            </Row>
-                            <Row className="Receipt-Title">
-                                STARTING STATION:
-                            </Row>
+                        <Col className="Consign-Col border-right-none" span={3}>
+                            起运站 <br /> STARTING STATION:
                         </Col>
                         <Col
                             className="Consign-Col Receipt-Align border-right-none"
@@ -90,24 +84,16 @@ export default React.forwardRef(({ data, printRef }) => {
                         </Col>
                     </Row>
                     <Row className="Consign-Row">
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                托运日期
-                            </Row>
-                            <Row className="Receipt-Title">
-                                CONSIGNMENT DATE:
-                            </Row>
+                        <Col className="Consign-Col border-right-none" span={3}>
+                            托运日期 <br /> CONSIGNMENT DATE:
                         </Col>
                         <Col className="Consign-Col Receipt-Align" span={9}>
                             {new Date(data?.consignmentDate)
                                 .toISOString()
                                 .substring(0, 10)}
                         </Col>
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                到达站
-                            </Row>
-                            <Row className="Receipt-Title">DESTINATION:</Row>
+                        <Col className="Consign-Col border-right-none" span={3}>
+                            到达站 <br /> DESTINATION:
                         </Col>
                         <Col
                             className="Consign-Col Receipt-Align border-right-none"
@@ -117,20 +103,14 @@ export default React.forwardRef(({ data, printRef }) => {
                         </Col>
                     </Row>
                     <Row className="Consign-Row">
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                托运日期
-                            </Row>
-                            <Row className="Receipt-Title">CONSIGNEE MARK:</Row>
+                        <Col className="Consign-Col border-right-none" span={3}>
+                            托运日期 <br /> CONSIGNEE MARK:
                         </Col>
                         <Col className="Consign-Col Receipt-Align" span={9}>
                             {data?.consignee}
                         </Col>
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                联系电话
-                            </Row>
-                            <Row className="Receipt-Title">TELEPHONE:</Row>
+                        <Col className="Consign-Col border-right-none" span={3}>
+                            联系电话 <br /> TELEPHONE:
                         </Col>
                         <Col
                             className="Consign-Col Receipt-Align border-right-none"
@@ -141,64 +121,31 @@ export default React.forwardRef(({ data, printRef }) => {
                     </Row>
                     <Row className="Consign-Row">
                         <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                货物名称
-                            </Row>
-                            <Row className="Receipt-Title">DESCRIPTION</Row>
+                            货物名称 <br /> DESCRIPTION
                         </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Receipt-Title">
-                                包装
-                            </Row>
-                            <Row className="Receipt-Title">PACKAGE</Row>
+                            包装 <br /> PACKAGE
                         </Col>
                         <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                件数
-                            </Row>
-                            <Row className="Receipt-Title">QUANTITY</Row>
+                            件数 <br /> QUANTITY
                         </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Receipt-Title">
-                                箱号
-                            </Row>
-                            <Row className="Receipt-Title">CTN NO</Row>
+                            包装费 <br /> PACKING FEE
                         </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Receipt-Title">
-                                包装费
-                            </Row>
-                            <Row className="Receipt-Title">EXPENSE</Row>
+                            重量 <br /> WEIGHT
                         </Col>
                         <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                包装费
-                            </Row>
-                            <Row className="Receipt-Title">CBM</Row>
+                            包装费 <br /> VOLUME
                         </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Receipt-Title">
-                                重量
-                            </Row>
-                            <Row className="Receipt-Title">WEIGHT</Row>
+                            税款 <br /> TAX
                         </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Receipt-Title">
-                                税款
-                            </Row>
-                            <Row className="Receipt-Title">TAX</Row>
-                        </Col>
-                        <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Receipt-Title">
-                                运费
-                            </Row>
-                            <Row className="Receipt-Title">FREIGHT</Row>
+                            运费 <br /> FREIGHT
                         </Col>
                         <Col className="Consign-Col border-right-none" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                预付款
-                            </Row>
-                            <Row className="Receipt-Title">ADVANCE</Row>
+                            预付款 <br /> ADVANCE
                         </Col>
                     </Row>
                     <Row className="Consign-Row">
@@ -224,25 +171,19 @@ export default React.forwardRef(({ data, printRef }) => {
                             className="Consign-Col Receipt-Align p-signvalue"
                             span={2}
                         >
-                            {data?.ctnNo}
-                        </Col>
-                        <Col
-                            className="Consign-Col Receipt-Align p-signvalue"
-                            span={2}
-                        >
-                            {data?.expense}
-                        </Col>
-                        <Col
-                            className="Consign-Col Receipt-Align p-signvalue"
-                            span={3}
-                        >
-                            {data?.cbm}
+                            {data?.packingFee}
                         </Col>
                         <Col
                             className="Consign-Col Receipt-Align p-signvalue"
                             span={2}
                         >
                             {data?.weight}{' '}
+                        </Col>
+                        <Col
+                            className="Consign-Col Receipt-Align p-signvalue"
+                            span={3}
+                        >
+                            {data?.volume}
                         </Col>
                         <Col
                             className="Consign-Col Receipt-Align p-signvalue"
@@ -265,46 +206,38 @@ export default React.forwardRef(({ data, printRef }) => {
                     </Row>
                     <Row className="Consign-Row">
                         <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                价值
-                            </Row>
-                            <Row className="Receipt-Title">VALUE</Row>
+                            价值 <br /> VALUE
                         </Col>
                         <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                保险
-                            </Row>
-                            <Row className="Receipt-Title">INSURANCE</Row>
-                        </Col>
-                        <Col className="Consign-Col" span={4}>
-                            <Row className="border-bottom Receipt-Title">
-                                代垫款
-                            </Row>
-                            <Row className="Receipt-Title">PREPAYMENT</Row>
-                        </Col>
-                        <Col className="Consign-Col" span={2}>
-                            <Row className="border-bottom Receipt-Title">
-                                保险
-                            </Row>
-                            <Row className="Receipt-Title">PAYMENT</Row>
+                            保险 <br /> INSURANCE
                         </Col>
                         <Col className="Consign-Col" span={3}>
-                            <Row className="Receipt-Title border-bottom">
-                                FREIGHT PREPAID
-                            </Row>
-                            {data?.freightPrepaid}
+                            垫付运费 <br /> LOCAL FREIGHT
+                        </Col>
+                        <Col className="Consign-Col" span={3}>
+                            付款方式
+                        </Col>
+                        <Col className="Consign-Col" span={3}>
+                            FREIGHT ON DELIVERY
                         </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="Receipt-Title">合计金额</Row>
+                            合计金额
                         </Col>
                         <Col className="Consign-Col Receipt-Align" span={4}>
-                            小写: 796.7+45=841.7元
+                            <span>
+                                {converter.toWords(
+                                    (+data?.packingFee || 0) +
+                                        (+data?.tax || 0) +
+                                        (+data?.freight || 0) +
+                                        (+data?.insurance || 0) +
+                                        (+data?.billCharge || 0) +
+                                        (+data?.localFreight || 0) -
+                                        (+data?.advance || 0)
+                                )}
+                            </span>
                         </Col>
                         <Col className="Consign-Col border-right-none" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                贸易方式
-                            </Row>
-                            <Row className="Receipt-Title">TRADE MODE</Row>
+                            贸易方式 <br /> TRADE MODE
                         </Col>
                     </Row>
                     <Row className="Consign-Row">
@@ -317,20 +250,17 @@ export default React.forwardRef(({ data, printRef }) => {
                         <Col className="Consign-Col Receipt-Align" span={3}>
                             元{data?.insurance}
                         </Col>
-                        <Col className="Consign-Col Receipt-Align" span={4}>
-                            元{data?.prepayment}
-                        </Col>
-                        <Col className="Consign-Col Receipt-Align" span={2}>
-                            元{data?.payment}
+                        <Col className="Consign-Col Receipt-Align" span={3}>
+                            元{data?.localFreight}
                         </Col>
                         <Col className="Consign-Col" span={3}>
-                            <Row className="Receipt-Title">
-                                FREIGHT Delivery
-                            </Row>
+                            PAYMENT METHOD
+                        </Col>
+                        <Col className="Consign-Col" span={3}>
                             <div>{data?.freightDelivery}</div>
                         </Col>
                         <Col className="Consign-Col" span={2}>
-                            <Row className="Receipt-Title">TOTAL AMOUNT</Row>
+                            TOTAL AMOUNT
                         </Col>
                         <Col className="Consign-Col Receipt-Align" span={4}>
                             元{data?.totalAmount}
@@ -342,41 +272,21 @@ export default React.forwardRef(({ data, printRef }) => {
                             {data?.tradeMode}
                         </Col>
                     </Row>
-                    <Row>
+                    <Row className="Consign-Row">
+                        <Col className="Consign-Col border-bottom" span={3}>
+                            备注 <br /> REMARKS
+                        </Col>
                         <Col
-                            className="Consign-Row Receipt-Align p-signvalue t-white"
-                            span={15}
+                            className="Consign-Col Receipt-Align border-bottom"
+                            span={14}
                         >
-                            .
-                        </Col>
-                        <Col className="Consign-Col" span={2}></Col>
-                        <Col
-                            className="Consign-Col Receipt-Align p-signvalue border-top border-left-none"
-                            span={4}
-                        ></Col>
-                        <Col
-                            className="Consign-Col Receipt-Align p-signvalue border-top border-left-none"
-                            span={3}
-                        ></Col>
-                    </Row>
-                    <Row className="Consign-Row border-bottom">
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                备注
-                            </Row>
-                            <Row className="Receipt-Title">REMARKS</Row>
-                        </Col>
-                        <Col className="Consign-Col Receipt-Align" span={14}>
                             {data?.remarks}
                         </Col>
-                        <Col className="Consign-Col" span={3}>
-                            <Row className="border-bottom Receipt-Title">
-                                收货人签字
-                            </Row>
-                            <Row className="Receipt-Title">SIGNATURE</Row>
+                        <Col className="Consign-Col border-bottom" span={3}>
+                            收货人签字 <br /> SIGNATURE
                         </Col>
                         <Col
-                            className="Consign-Col Receipt-Align border-right-none"
+                            className="Consign-Col Receipt-Align border-right-none border-bottom"
                             span={4}
                         >
                             {data?.signature}
