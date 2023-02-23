@@ -101,7 +101,7 @@ export const layout = ({ initialState, setInitialState }) => {
         childrenRender: (children, props) => {
             // if (initialState?.loading) return <PageLoading />;
             return (
-                <Card>
+                <>
                     {children}
                     {!props.location?.pathname?.includes('/login') && (
                         <SettingDrawer
@@ -116,7 +116,7 @@ export const layout = ({ initialState, setInitialState }) => {
                             }}
                         />
                     )}
-                </Card>
+                </>
             );
         },
         menu: {

@@ -2,8 +2,9 @@ import { request } from '@umijs/max';
 import { notification } from 'antd';
 const loginPath = '/user/login';
 
-// export const baseURL = process.env.baseURL || 'https://api.adologistic.com/api';
-export const baseURL = process.env.baseURL || 'https://localhost:7270/api';
+export const baseURL =
+    process.env.BASE_URL || 'https://api.adologistic.com/api';
+// export const baseURL = process.env.BASE_URL || 'https://localhost:7270/api';
 
 export async function get(url, setLoader, cb = () => {}, options) {
     const token = localStorage.getItem('token');
@@ -60,7 +61,7 @@ export async function post(url, data, setLoader, cb = () => {}, options = {}) {
         return res || {};
     } catch (ex) {
         console.log(ex);
-		setLoader(false);
+        setLoader(false);
         switch (ex.response.status) {
             case 500:
             case 404:

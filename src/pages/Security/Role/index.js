@@ -1,9 +1,10 @@
-import { Button, Col, Form, Input, List, Radio, Row, Typography } from 'antd';
+import { Button, Form, Input, List, Radio, Typography } from 'antd';
 import 'antd/dist/antd.css';
 import { useEffect, useState } from 'react';
 import API from '../../../services/Security';
 import './Role.css';
 
+import { PageContainer, ProCard } from '@ant-design/pro-components';
 import Permissions from '../../../components/Permission';
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -95,29 +96,31 @@ const Role = () => {
     };
 
     return (
-        <div className="Consign-Form">
-            <Title level={5}>Role</Title>
-            <Row gutter={{ lg: 32, sm: 32, xs: 32 }}>
-                <Col span={8}>
+        <PageContainer title="Roles">
+            <ProCard split="vertical">
+                <ProCard colSpan="30%">
                     <List
-                        className="list"
                         header={<div>Roles</div>}
-                        loading={listLoading}
-                        bordered
                         size="small"
+                        bordered
+                        loading={listLoading}
                         dataSource={roles}
                         renderItem={(item) => (
-                            <List.Item
-                                onClick={() => getRoleDetails(item.id)}
-                                key={item.id}
-                            >
+                            <List.Item key={item.id}>
                                 <Typography.Link>{item.name}</Typography.Link>
+                                <a
+                                    key="edit"
+                                    onClick={() => {
+                                        getRoleDetails(item.id);
+                                    }}
+                                >
+                                    Edit
+                                </a>
                             </List.Item>
                         )}
-                    ></List>
-                </Col>
-
-                <Col span={15}>
+                    />
+                </ProCard>
+                <ProCard>
                     <Form
                         form={form}
                         onFinish={onFinish}
@@ -126,59 +129,56 @@ const Role = () => {
                         scrollToFirstError
                         onFinishFailed={onFinishFailed}
                     >
-                        <Row className="roleGroup">
-                            <Form.Item
-                                name="name"
-                                label="Name:"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please enter a Name',
-                                    },
-                                ]}
+                        <Form.Item
+                            name="name"
+                            label="Name:"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please enter a Name',
+                                },
+                            ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            name="desc"
+                            label="Role Desc:"
+                            rules={[
+                                {
+                                    required: false,
+                                    message: 'Please give Role Description',
+                                },
+                            ]}
+                        >
+                            <TextArea />
+                        </Form.Item>
+
+                        <Form.Item
+                            name="status"
+                            label="Status:"
+                            rules={[
+                                {
+                                    required: false,
+                                    message: 'please give a status',
+                                },
+                            ]}
+                        >
+                            <Radio.Group
+                                defaultValue={0}
+                                value={status}
+                                onChange={changeStatus}
                             >
-                                <Input style={{ width: 420, height: 36 }} />
-                            </Form.Item>
-                            <Form.Item
-                                name="desc"
-                                label="Role Desc:"
-                                rules={[
-                                    {
-                                        required: false,
-                                        message: 'Please give Role Description',
-                                    },
-                                ]}
-                            >
-                                <TextArea style={{ width: 420, height: 36 }} />
-                            </Form.Item>
-                        </Row>
-                        <Row className="roleGroup">
-                            <Form.Item
-                                name="status"
-                                label="Status:"
-                                rules={[
-                                    {
-                                        required: false,
-                                        message: 'please give a status',
-                                    },
-                                ]}
-                            >
-                                <Radio.Group
-                                    defaultValue={0}
-                                    value={status}
-                                    onChange={changeStatus}
-                                >
-                                    {' '}
-                                    {enStatus?.map((x) => {
-                                        return (
-                                            <Radio key={x.id} value={x.id}>
-                                                {x.name}
-                                            </Radio>
-                                        );
-                                    })}
-                                </Radio.Group>
-                            </Form.Item>
-                        </Row>
+                                {' '}
+                                {enStatus?.map((x) => {
+                                    return (
+                                        <Radio key={x.id} value={x.id}>
+                                            {x.name}
+                                        </Radio>
+                                    );
+                                })}
+                            </Radio.Group>
+                        </Form.Item>
 
                         <Permissions
                             form={form}
@@ -188,14 +188,13 @@ const Role = () => {
                             loading={loadSubmit}
                             htmlType="submit"
                             type="primary"
-                            style={{ marginTop: 24 }}
                         >
                             {saveButton ? 'Save' : 'Update'}
                         </Button>
                     </Form>
-                </Col>
-            </Row>
-        </div>
+                </ProCard>
+            </ProCard>
+        </PageContainer>
     );
 };
 
