@@ -1,10 +1,4 @@
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import {
-    PageContainer,
-    ProCard,
-    ProForm,
-    ProFormText,
-} from '@ant-design/pro-components';
+import { ProCard, ProForm, ProFormText } from '@ant-design/pro-components';
 import { Button, List, Transfer, Typography } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import API from '../../../services/ProductTracking/index';
@@ -95,14 +89,11 @@ export default () => {
 
     return (
         <>
-            <PageContainer title="Checkpoints">
-                <ProCard split="vertical">
-                    <ProCard colSpan="30%">
+            <div className="Consign-Form">
+                <ProCard key="page" direction="row" ghost gutter={16}>
+                    <ProCard key="list" colspan={8} ghost>
                         <List
-                            header={<div>Checkpoints</div>}
-                            size="small"
-                            bordered
-                            loading={listLoading}
+                            size="large"
                             id="checkpointShow"
                             onRow={(_) => {
                                 return {
@@ -115,7 +106,10 @@ export default () => {
                                 };
                             }}
                             rowKey="id"
+                            header={<div>Checkpoints</div>}
                             dataSource={checkpoints}
+                            bordered
+                            loading={listLoading}
                             showActions="hover"
                             showExtra="hover"
                             renderItem={(item) => (
@@ -123,29 +117,23 @@ export default () => {
                                     <Typography.Link>
                                         {item.name}
                                     </Typography.Link>
-                                    <div>
-                                        <Button
-                                            type="link"
-                                            icon={<EditOutlined />}
-                                            key="edit"
-                                            onClick={() => {
-                                                getCheckpointDetail(item.id);
-                                            }}
-                                        />
-                                        <Button
-                                            type="link"
-                                            danger
-                                            icon={<DeleteOutlined />}
-                                            href="https://www.google.com"
-                                        />
-                                    </div>
+                                    <a
+                                        key="edit"
+                                        onClick={() => {
+                                            getCheckpointDetail(item.id);
+                                        }}
+                                    >
+                                        Edit
+                                    </a>
                                 </List.Item>
                             )}
                         />
                     </ProCard>
-                    <ProCard>
+                    <ProCard key="form" colSpan={16}>
+                        <Title id="mainTitle" level={5}>
+                            Checkpoint
+                        </Title>
                         <ProForm
-                            layout="vertical"
                             id="checkpointGroup"
                             onFinish={submit}
                             formRef={formRef}
@@ -172,51 +160,54 @@ export default () => {
                                         onClick={reset}
                                     >
                                         Reset
-                                    </Button>
+                                    </Button>,
                                 ],
                             }}
                             autoFocusFirstInput
                         >
-                            <ProFormText name="id" hidden />
+                            <ProForm.Group>
+                                <ProFormText name="id" hidden />
 
-                            <ProFormText
-                                name="name"
-                                required
-                                label="Name"
-                                placeholder=""
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'This is required',
-                                    },
-                                ]}
-                            />
-                            <ProFormText
-                                name="address"
-                                required
-                                label="Address"
-                                placeholder=""
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'This is required',
-                                    },
-                                ]}
-                            />
-                            <div className='ant-form-item'>
-                                <Transfer
-                                    dataSource={userData}
-                                    titles={['Available', 'Selected']}
-                                    targetKeys={selectedUser}
-                                    onChange={onChange}
-                                    onSelectChange={onSelectChange}
-                                    render={(item) => item.title}
+                                <ProFormText
+                                    width="md"
+                                    name="name"
+                                    required
+                                    label="Name"
+                                    placeholder=""
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'This is required',
+                                        },
+                                    ]}
                                 />
-                            </div>
+                                <ProFormText
+                                    width="md"
+                                    name="address"
+                                    required
+                                    label="Address"
+                                    placeholder=""
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: 'This is required',
+                                        },
+                                    ]}
+                                />
+                            </ProForm.Group>
+
+                            <Transfer
+                                dataSource={userData}
+                                titles={['Available', 'Selected']}
+                                targetKeys={selectedUser}
+                                onChange={onChange}
+                                onSelectChange={onSelectChange}
+                                render={(item) => item.title}
+                            />
                         </ProForm>
                     </ProCard>
                 </ProCard>
-            </PageContainer>
+            </div>
         </>
     );
 };

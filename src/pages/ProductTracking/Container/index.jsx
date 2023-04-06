@@ -124,7 +124,7 @@ export default function Container() {
             .flat();
         const items = consignmentItems?.map((x) => ({
             ...x,
-            name: x.item.name,
+            name: x.itemName,
         }));
         setItemsInfo(items);
         setModalAction(true);
@@ -151,6 +151,9 @@ export default function Container() {
         {
             title: 'Photo',
             dataIndex: 'photo',
+            render: (record) => (
+                <img src={`${baseURL}/file/${record}`} width={50} />
+            ),
             key: 'photo',
         },
         {
@@ -191,6 +194,12 @@ export default function Container() {
             editable: false,
         },
         {
+            title: 'Destination',
+            dataIndex: ['destination', 'name'],
+            key: 'destination',
+            editable: false,
+        },
+        {
             title: 'PaymentStatus',
             dataIndex: 'paymentStatusName',
             key: 'paymentStatusName',
@@ -228,13 +237,6 @@ export default function Container() {
         },
     ];
 
-    const consignmentColumn = [...Column.filter((x) => x.dataIndex != 'id')];
-    const getContainerDetails = async (id) => {
-        const resContainerDetail = await API.container.getById(id);
-        formRef.current.setFieldsValue(resContainerDetail?.data);
-        setSelectedConsignment(resContainerDetail?.data?.consignments);
-    };
-
     const getConsignments = async () => {
         const resconsignment = await API.consignments.checkpointConsignments(
             setTableLoading
@@ -249,6 +251,12 @@ export default function Container() {
                     .substring(0, 10),
             }))
         );
+    };
+
+    const getContainerDetails = async (id) => {
+        const resContainerDetail = await API.container.getById(id);
+        formRef.current.setFieldsValue(resContainerDetail?.data);
+        setSelectedConsignment(resContainerDetail?.data?.consignments);
     };
 
     useEffect(async () => {
@@ -338,6 +346,7 @@ export default function Container() {
             cell: EditableCell,
         },
     };
+
     const columns = [...Column.filter((x) => x.dataIndex !== 'id')].map(
         (col) => {
             if (!col.editable) {
@@ -389,7 +398,7 @@ export default function Container() {
                                 </Button>,
                                 <Button
                                     type="default"
-                                    key="submit"
+                                    key="reset"
                                     id="buttonReset"
                                     onClick={reset}
                                 >
@@ -446,6 +455,7 @@ export default function Container() {
                                 width="md"
                                 name="sourceId"
                                 required
+                                disabled={true}
                                 label="Source"
                                 placeholder=""
                                 rules={[

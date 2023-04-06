@@ -2,6 +2,7 @@ import PrintComponent from '@/components/PrintComponent';
 import { baseURL } from '@/services/api';
 import { UploadOutlined } from '@ant-design/icons';
 import {
+    ProCard,
     ProForm,
     ProFormDatePicker,
     ProFormDependency,
@@ -28,33 +29,6 @@ import {
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import API from '../../../services/ProductTracking/index';
 const converter = require('number-to-words');
-
-const props = {
-    action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-    listType: 'picture',
-    beforeUpload(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => {
-                const img = document.createElement('img');
-                img.src = reader.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.naturalWidth;
-                    canvas.height = img.naturalHeight;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    ctx.fillStyle = 'red';
-                    ctx.textBaseline = 'middle';
-                    ctx.font = '33px Arial';
-                    ctx.fillText('Ant Design', 20, 20);
-                    canvas.toBlob((result) => resolve(result));
-                };
-            };
-        });
-    },
-};
 
 const EditableContext = React.createContext(null);
 const EditableRow = ({ index, ...props }) => {
@@ -148,7 +122,7 @@ const EditableCell = ({
                             ref={inputRef}
                             onPressEnter={save}
                             onBlur={save}
-                            {...props}
+                            listType="picture"
                             headers={authHeader}
                             action={baseURL + '/file'}
                             onChange={(info) => {
@@ -196,8 +170,12 @@ export default ({ data }) => {
     const [disabled, setDisabled] = useState(false);
     const [buttonDisabled, setButtonDisabled] = useState(true);
     const [loadSubmit, setLoadSubmit] = useState(false);
+    const [paymentStatuses, setPaymentStatuses] = useState([]);
     const [paymentStatus, setPaymentStatus] = useState([]);
 
+    const updatePayStatus = (paymentStatus) => {
+        setPaymentStatus(paymentStatus);
+    };
     const handleDelete = (key) => {
         const newData = items.filter((item) => item.key !== key);
         setItems(newData);
@@ -235,6 +213,9 @@ export default ({ data }) => {
         {
             title: 'Photo',
             dataIndex: 'photo',
+            render: (record) => (
+                <img src={`${baseURL}/file/${record}`} width={50} />
+            ),
             key: 'photo',
             type: 'photo',
             editable: !disabled,
@@ -347,7 +328,8 @@ export default ({ data }) => {
         );
 
         const resPaymentStatus = await API.enum.paymentStatus();
-        setPaymentStatus(
+        console.log(resPaymentStatus);
+        setPaymentStatuses(
             resPaymentStatus?.data?.map((x) => ({
                 label: x.name,
                 value: x.id,
@@ -387,6 +369,7 @@ export default ({ data }) => {
 
                 setConsignmentData(resConsignmentDetail?.data);
                 setButtonDisabled(false);
+                modelOpen();
             }
             // await reset();
             setItems([]);
@@ -412,7 +395,7 @@ export default ({ data }) => {
     };
 
     return (
-        <>
+        <ProCard ghost>
             <ProForm
                 onFinish={submit}
                 formRef={formRef}
@@ -429,9 +412,6 @@ export default ({ data }) => {
                             key="submit"
                             loading={loadSubmit}
                             id="buttonSubmit"
-                            style={{
-                                marginLeft: 64,
-                            }}
                             onClick={() => props.form?.submit?.()}
                         >
                             {action == 'A' ? 'Submit' : ''}
@@ -486,7 +466,7 @@ export default ({ data }) => {
                         </Col>
                         <Col className="Consign-Col border-right-none" span={9}>
                             <ProFormSelect
-                                disabled={disabled}
+                                disabled={true}
                                 options={checkpoint}
                                 initialValue={currentUser?.checkpointId}
                                 onChange={(id) => getSortedCheckpoint(id)}
@@ -575,12 +555,12 @@ export default ({ data }) => {
                             件数 <br /> QUANTITY
                         </Col>
                         {/*
-                        <Col className="Consign-Col" span={2}>
-                            <Row className="Consign-Title">
-                                箱号
-                            </Row>
-                            <Row className="Consign-Title">CTN NO</Row>
-						</Col>
+<Col className="Consign-Col" span={2}>
+<Row className="Consign-Title">
+箱号
+</Row>
+<Row className="Consign-Title">CTN NO</Row>
+</Col>
 						*/}
                         <Col className="Consign-Col" span={2}>
                             包装费 <br /> PACKING FEE
@@ -600,8 +580,8 @@ export default ({ data }) => {
                         <Col className="Consign-Col" span={3}>
                             预付款 <br /> ADVANCE
                         </Col>
-                        <Col className="Consign-Col border-right-none" span={3}>
-                            预付款 <br /> BillCharge
+                        <Col className="Consign-Col" span={3}>
+                            预付款 <br /> BILL CHARGE
                         </Col>
                     </Row>
                     <Row className="Consign-Row">
@@ -637,16 +617,16 @@ export default ({ data }) => {
                             />
                         </Col>
                         {/*
-                        <Col className="Consign-Col" span={2}>
-                            <ProFormTextArea
-                                disabled={disabled}
-                                name="ctnNo"
-                                fieldProps={{
-                                    bordered: false,
-                                }}
-                                placeholder=""
-                            />
-                        </Col>
+<Col className="Consign-Col" span={2}>
+<ProFormTextArea
+disabled={disabled}
+name="ctnNo"
+fieldProps={{
+bordered: false,
+}}
+placeholder=""
+/>
+</Col>
 						*/}
                         <Col className="Consign-Col" span={2}>
                             <ProFormDigit
@@ -759,16 +739,18 @@ export default ({ data }) => {
                                     billCharge,
                                     advance,
                                 }) => (
-                                    <span>
-                                        {converter.toWords(
-                                            (+packingFee || 0) +
-                                                (+tax || 0) +
-                                                (+freight || 0) +
-                                                (+insurance || 0) +
-                                                (+billCharge || 0) +
-                                                (+localFreight || 0)
-                                        )}
-                                    </span>
+                                    <>
+                                        <span>
+                                            {converter.toWords(
+                                                (+packingFee || 0) +
+                                                    (+tax || 0) +
+                                                    (+freight || 0) +
+                                                    (+insurance || 0) +
+                                                    (+billCharge || 0) +
+                                                    (+localFreight || 0)
+                                            )}
+                                        </span>
+                                    </>
                                 )}
                             </ProFormDependency>
                         </Col>
@@ -843,15 +825,25 @@ export default ({ data }) => {
                                     billCharge,
                                     advance,
                                 }) => (
-                                    <span>
-                                        {(+packingFee || 0) +
-                                            (+tax || 0) +
-                                            (+freight || 0) +
-                                            (+insurance || 0) +
-                                            (+billCharge || 0) +
-                                            (+localFreight || 0) -
-                                            (+advance || 0)}
-                                    </span>
+                                    <>
+                                        <ProFormDigit
+                                            disabled={true}
+                                            name="freightOnDelivery"
+                                            fieldProps={{
+                                                bordered: false,
+                                            }}
+                                            placeholder=""
+                                            value={
+                                                (+packingFee || 0) +
+                                                (+tax || 0) +
+                                                (+freight || 0) +
+                                                (+insurance || 0) +
+                                                (+billCharge || 0) +
+                                                (+localFreight || 0) -
+                                                (+advance || 0)
+                                            }
+                                        />
+                                    </>
                                 )}
                             </ProFormDependency>
                         </Col>
@@ -878,14 +870,32 @@ export default ({ data }) => {
                                         insurance,
                                         localFreight,
                                     }) => (
-                                        <span>
-                                            {(+packingFee || 0) +
-                                                (+tax || 0) +
-                                                (+freight || 0) +
-                                                (+insurance || 0) +
-                                                (+localFreight || 0) +
-                                                (+billCharge || 0)}
-                                        </span>
+                                        <>
+                                            <span>
+                                                {(+packingFee || 0) +
+                                                    (+tax || 0) +
+                                                    (+freight || 0) +
+                                                    (+insurance || 0) +
+                                                    (+billCharge || 0) +
+                                                    (+localFreight || 0)}
+                                            </span>
+                                            {/*<ProFormDigit
+                                                disabled={true}
+                                                name="totalAmount"
+                                                fieldProps={{
+                                                    bordered: false,
+                                                }}
+                                                placeholder=""
+                                                value={
+                                                    (+packingFee || 0) +
+                                                    (+tax || 0) +
+                                                    (+freight || 0) +
+                                                    (+insurance || 0) +
+                                                    (+billCharge || 0) +
+                                                    (+localFreight || 0)
+                                                }
+											/>*/}
+                                        </>
                                     )}
                                 </ProFormDependency>
                             </Row>
@@ -941,29 +951,72 @@ export default ({ data }) => {
                 ) : (
                     <>
                         {/* <ProFormDigit
-                            name="paymentAmount"
-                            label="PaidAmount"
-                            placeholder=""
-                            width="md"
-                        /> */}
+name="paymentAmount"
+label="PaidAmount"
+placeholder=""
+width="md"
+/> */}
                         <ProFormSelect
-                            options={paymentStatus}
+                            options={paymentStatuses}
                             width="md"
                             name="paymentStatus"
-                            required
+                            value={paymentStatus}
+                            readonly={true}
                             label="Status"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'This is required',
-                                },
-                            ]}
                         />
+                        <ProFormDependency
+                            name={[
+                                'packingFee',
+                                'tax',
+                                'freight',
+                                'insurance',
+                                'billCharge',
+                                'localFreight',
+                                'advance',
+                            ]}
+                        >
+                            {({
+                                packingFee,
+                                tax,
+                                freight,
+                                insurance,
+                                localFreight,
+                                billCharge,
+                                advance,
+                            }) => {
+                                const paymentStatus =
+                                    (+packingFee || 0) +
+                                        (+tax || 0) +
+                                        (+freight || 0) +
+                                        (+insurance || 0) +
+                                        (+billCharge || 0) -
+                                        (+advance || 0) +
+                                        (+localFreight || 0) ==
+                                    0
+                                        ? 0
+                                        : 1;
+                                updatePayStatus(paymentStatus);
+                                return (
+                                    <>
+                                        {/*<Title level={4}>
+                                        {(+packingFee || 0) +
+                                            (+tax || 0) +
+                                            (+freight || 0) +
+                                            (+insurance || 0) +
+                                            (+billCharge || 0) +
+                                            (+localFreight || 0) ==
+                                        0
+                                            ? 'Paid'
+                                            : 'Not Paid'}
+										</Title>*/}
+                                    </>
+                                );
+                            }}
+                        </ProFormDependency>
                     </>
                 )}
                 <Title
                     style={{
-                        marginLeft: 64,
                         marginBottom: 16,
                     }}
                     level={5}
@@ -974,7 +1027,6 @@ export default ({ data }) => {
                     onClick={handleAdd}
                     type="primary"
                     style={{
-                        marginLeft: 64,
                         marginBottom: 16,
                     }}
                     id="buttonAdd"
@@ -989,8 +1041,6 @@ export default ({ data }) => {
                     dataSource={items}
                     columns={columns}
                     style={{
-                        marginLeft: 64,
-                        marginRight: 64,
                         marginBottom: 32,
                     }}
                 />
@@ -1003,6 +1053,6 @@ export default ({ data }) => {
                     <PrintComponent data={consignmentData} />
                 </Modal>
             </ProForm>
-        </>
+        </ProCard>
     );
 };

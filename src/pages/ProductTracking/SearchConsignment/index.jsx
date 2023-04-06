@@ -1,6 +1,7 @@
+import ConsignmentList from '@/components/ConsignmentList';
 import PrintComponent from '@/components/PrintComponent';
-import { ProCard, ProForm } from '@ant-design/pro-components';
-import { AutoComplete, Button, Input, Modal, Timeline, Typography } from 'antd';
+import { ProCard } from '@ant-design/pro-components';
+import { Button, Input, Modal, Timeline, Typography } from 'antd';
 import { useRef, useState } from 'react';
 import API from '../../../services/ProductTracking/index';
 import Consignment from '../Consignment';
@@ -76,9 +77,9 @@ export default () => {
             <ProCard key="page" direction="row" gutter={16}>
                 <ProCard key="form" colSpan={24}>
                     <Title id="mainTitle" level={3}>
-                        Search Consignment
+                        Consignments
                     </Title>
-                    <ProForm
+                    {/* <ProForm
                         formRef={formRef}
                         params={{ id: '100' }}
                         formKey="election-type-form"
@@ -105,7 +106,8 @@ export default () => {
                                 enterButton
                             />
                         </AutoComplete>
-                    </ProForm>
+                    </ProForm> */}
+                    <ConsignmentList onSelect={onSelect} />
                 </ProCard>
             </ProCard>
             <ProCard direction="row" gutter={16}>

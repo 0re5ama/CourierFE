@@ -1,25 +1,32 @@
-import { Button, Form, List, Transfer, Typography } from 'antd';
-
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import {
-    PageContainer,
-    ProCard,
-    ProForm,
-    ProFormRadio,
-    ProFormSelect,
-    ProFormText,
-} from '@ant-design/pro-components';
+    Button,
+    Col,
+    Form,
+    Input,
+    List,
+    Radio,
+    Row,
+    Select,
+    Switch,
+    Tabs,
+    Transfer,
+    Typography,
+} from 'antd';
+
 import { useEffect, useState } from 'react';
 import API from '../../../services/Security';
 import './Users.css';
 
 const { Title } = Typography;
 
+const { Option } = Select;
+const { TabPane } = Tabs;
+
 const Users = () => {
     const [selectedKeys, setSelectedKeys] = useState([]);
     const [radioValue, setRadioValue] = useState(1);
     const [user, setUser] = useState([]);
-    const [office, setOffice] = useState([]);
+    const [offices, setOffices] = useState([]);
     const [userPermission, setUserPermission] = useState([]);
     const [roles, setRoles] = useState([]);
     const [saveButton, setSaveButton] = useState(true);
@@ -46,34 +53,21 @@ const Users = () => {
     const onSelectChange = (sourceSelectedKeys, targetSelectedKeys) => {
         setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
     };
-    const reset = async () => {
-        await formRef.current?.resetFields();
-        setSelectedUser([]);
-        getUser();
-        setAction('A');
-    };
 
     const onFinish = async (values) => {
         const formValue = form.getFieldValue();
         let permission = formValue.moduleFunctions;
         const userRoles = formValue.grant_role;
         const data = {
-            officeId: formValue.officeId,
-            userName: formValue.username,
-            employeeId: formValue.employeeId,
-            contact: formValue.contact,
-            email: formValue.email,
-            name: formValue.name,
-            password: formValue.password,
-            status,
+			...formValue,
+			status,
             role: userRoles.map((x) => ({ name: x })),
             // userModuleFunctions: permission
             //     .map((y) => y.fn)
             //     .flat()
             //     .map((x) => ({ moduleFunctionId: x.split(',')[0] })),
-        };
-
-        saveButton == true
+        }; // TODO: fix names and get value automatically
+        saveButton
             ? await API.user.post(data, setLoadSubmit)
             : await API.user.put(userId, data, setLoadSubmit);
         form.setFieldsValue({
@@ -82,10 +76,12 @@ const Users = () => {
             contact: '',
             email: '',
             password: '',
+            confirm_password: '',
             name: '',
             status: 0,
             grant_role: '',
         });
+        getOfficeUser(formValue.officeId);
     };
 
     const onFinishFailed = (errorInfo) => {
@@ -98,10 +94,17 @@ const Users = () => {
 
     useEffect(async () => {
         const responseOffice = await API.office.get();
-        const office = responseOffice?.data?.map((organization) => ({
+        const offices = responseOffice?.data?.map((organization) => ({
             ...organization,
         }));
-        setOffice(office);
+        setOffices(offices);
+        if (offices.length == 1) {
+			let officeId = offices[0].id;
+            form.setFieldsValue({
+                officeId,
+            });
+			getOfficeUser(officeId);
+        }
 
         const responseRoles = await API.role.get();
         const roles = responseRoles?.data?.map((role) => ({
@@ -123,6 +126,7 @@ const Users = () => {
     const getUserDetails = async (id) => {
         const responseUserDetails = await API.user.getById(id);
         let userInfo = responseUserDetails?.data;
+		console.log(userInfo);
         let permissions = userInfo?.userModuleFunctions?.map((x) => [
             x.moduleFunction.module.application.id +
                 ',' +
@@ -134,57 +138,40 @@ const Users = () => {
         ]);
 
         setUserId(userInfo.id);
+		console.log(userInfo.roles.map(x => x.name));
         form.setFieldsValue({
-            username: userInfo.userName,
-            contact: userInfo.contact,
-            employeeId: userInfo.employeeId,
-            email: userInfo.email,
-            status: userInfo.status,
-            password: userInfo.password,
-            name: userInfo.name,
-            grant_role: userInfo.Role,
+			...userInfo,
+			grant_role: userInfo.roles.map(x => x.name),
             permissions,
         });
         setSaveButton(false);
         setUserPermission(permissions);
-        setUsrRoles(responseUserDetails?.data?.userRole?.map((x) => x.roleId));
+        setUsrRoles(userInfo.roles.map(x => x.name));
     };
 
     return (
-        <PageContainer title="Users">
-            <ProCard split="vertical">
-                <ProCard colSpan="30%">
+        <div className="Consign-Form">
+            <Title level={5}>Users</Title>
+            <Row gutter={{ lg: 32, sm: 32, xs: 32 }}>
+                <Col span={8}>
                     <List
-                        header={<div>Users</div>}
+                        className="userList"
                         size="small"
                         bordered
                         loading={listLoading}
                         dataSource={user}
                         renderItem={(item) => (
-                            <List.Item key={item.id}>
-                                <Typography.Link>{item.name}</Typography.Link>
-                                <div>
-                                    <Button
-                                        type="link"
-                                        icon={<EditOutlined />}
-                                        key="edit"
-                                        onClick={() => {
-                                            getUserDetails(item.id);
-                                        }}
-                                    />
-                                    <Button
-                                        type="link"
-                                        danger
-                                        icon={<DeleteOutlined />}
-                                        href="https://www.google.com"
-                                    />
-                                </div>
+                            <List.Item
+                                onClick={() => getUserDetails(item.id)}
+                                key={item.id}
+                            >
+                                <Typography.Link> {item.name} </Typography.Link>
                             </List.Item>
                         )}
                     />
-                </ProCard>
-                <ProCard>
-                    <ProForm
+                </Col>
+                <Col span={15}>
+                    <Form
                         form={form}
                         layout="vertical"
                         name="basic"
@@ -193,147 +180,183 @@ const Users = () => {
                         }}
                         onFinish={onFinish}
                         onFinishFailed={onFinishFailed}
-                        submitter={{
-                            render: (props, dom) => [
-                                <Button
-                                    type="primary"
-                                    key="submit"
-                                    loading={loadSubmit}
-                                    id="buttonSubmit"
-                                    onClick={() => props.form?.submit?.()}
-                                >
-                                    {saveButton ? 'Save' : 'Update'}
-                                </Button>,
-                                <Button
-                                    type="default"
-                                    key="submit"
-                                    id="buttonReset"
-                                    onClick={reset}
-                                >
-                                    Reset
-                                </Button>,
-                            ],
-                        }}
                     >
-                        <ProFormSelect
-                            name="officeId"
-                            label="Office"
-                            placeholder="Select office"
-                            onChange={(id) => getOfficeUser(id)}
-                            options={office.map((item, id) => ({
-                                value: item.id,
-                                label: item.nameEng,
-                            }))}
-                        />
+                        <Form.Item label="Office" name="officeId">
+                            <Select
+                                placeholder=" Select office"
+                                onChange={(id) => getOfficeUser(id)}
+                            >
+                                {offices.map((item, id) => {
+                                    return (
+                                        <Option key={id} value={item.id}>
+                                            {item.nameEng}
+                                        </Option>
+                                    );
+                                })}
+                            </Select>
+                        </Form.Item>
 
-                        <ProFormText
-                            label="Username"
-                            name="username"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Please input your username!',
-                                },
-                            ]}
-                        />
-                        <ProFormText
-                            label="Email"
-                            name="email"
-                            type="email"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Please input your email',
-                                },
-                            ]}
-                        />
-
-                        <ProFormText
-                            label="Name"
-                            name="name"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Please enter your nepali name!',
-                                },
-                            ]}
-                        />
-
-                        <ProFormText
-                            label="Contact No"
-                            name="contact"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Please enter your phone number!',
-                                },
-                            ]}
-                        />
-
-                        <ProFormText.Password
-                            label="Password"
-                            name="password"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Please input your password!',
-                                },
-                            ]}
-                            hasFeedback
-                        />
-
-                        <ProFormText.Password
-                            label="Confirm Password"
-                            name="confirm_password"
-                            dependencies={['password']}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Please repeat your password!',
-                                },
-                                ({ getFieldValue }) => ({
-                                    validator(_, value) {
-                                        if (
-                                            !value ||
-                                            getFieldValue('password') === value
-                                        ) {
-                                            return Promise.resolve();
-                                        }
-                                        return Promise.reject(
-                                            new Error(
-                                                'The two passwords that you entered do not match!'
-                                            )
-                                        );
+                        <Row className="userGroup">
+                            <Form.Item
+                                label="Username"
+                                name="userName"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please input your username!',
                                     },
-                                }),
-                            ]}
-                            hasFeedback
-                        />
+                                ]}
+                            >
+                                <Input
+                                    style={{ width: 420, height: 36 }}
+                                    placeholder=""
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                label="Email"
+                                name="email"
+                                type="email"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please input your email',
+                                    },
+                                ]}
+                            >
+                                <Input
+                                    style={{ width: 420, height: 36 }}
+                                    placeholder=""
+                                />
+                            </Form.Item>
+                        </Row>
 
-                        <ProFormRadio.Group
-                            name="status"
-                            label="Status:"
-                            rules={[
-                                {
-                                    required: false,
-                                    message: 'please give a status',
-                                },
-                            ]}
-                            options={enStatus?.map((x) => ({
-                                value: x.id,
-                                label: x.name,
-                            }))}
-                            defaultValue={0}
-                            value={status}
-                            onChange={changeStatus}
-                        />
-                        <ProCard
-                            tabs={{
-                                type: 'card',
-                            }}
-                        >
-                            <ProCard.TabPane key="tab1" tab="Grant Role">
-                                <ProFormText
+                        <Row className="userGroup">
+                            <Form.Item
+                                label="Name"
+                                name="name"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message:
+                                            'Please enter your nepali name!',
+                                    },
+                                ]}
+                            >
+                                <Input
+                                    style={{ width: 420, height: 36 }}
+                                    placeholder=""
+                                />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Contact No"
+                                name="contact"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message:
+                                            'Please enter your phone number!',
+                                    },
+                                ]}
+                            >
+                                <Input
+                                    style={{ width: 420, height: 36 }}
+                                    placeholder=""
+                                />
+                            </Form.Item>
+                        </Row>
+
+                        <Row className="userGroup">
+                            <Form.Item
+                                label="Password"
+                                name="password"
+                                rules={[
+                                    {
+                                        required: saveButton,
+                                        message: 'Please input your password!',
+                                    },
+                                ]}
+                                hasFeedback
+                            >
+                                <Input.Password
+                                    style={{ width: 420, height: 36 }}
+                                    placeholder=""
+                                    autoComplete="new-password"
+                                />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Confirm Password"
+                                name="confirm_password"
+                                dependencies={['password']}
+                                rules={[
+                                    {
+                                        required: saveButton,
+                                        message: 'Please repeat your password!',
+                                    },
+                                    ({ getFieldValue }) => ({
+                                        validator(_, value) {
+                                            if (
+                                                !value ||
+                                                getFieldValue('password') ===
+                                                    value
+                                            ) {
+                                                return Promise.resolve();
+                                            }
+                                            return Promise.reject(
+                                                new Error(
+                                                    'The two passwords that you entered do not match!'
+                                                )
+                                            );
+                                        },
+                                    }),
+                                ]}
+                                hasFeedback
+                            >
+                                <Input.Password
+                                    style={{ width: 420, height: 36 }}
+                                    placeholder=""
+                                />
+                            </Form.Item>
+                        </Row>
+                        <Row className="roleGroup">
+                            <Form.Item
+                                name="status"
+                                label="Status:"
+                                rules={[
+                                    {
+                                        required: false,
+                                        message: 'please give a status',
+                                    },
+                                ]}
+                            >
+                                <Radio.Group
+                                    defaultValue={0}
+                                    value={status}
+                                    onChange={changeStatus}
+                                >
+                                    {enStatus?.map((x) => {
+                                        return (
+                                            <Radio key={x.id} value={x.id}>
+                                                {x.name}
+                                            </Radio>
+                                        );
+                                    })}
+                                </Radio.Group>
+                            </Form.Item>
+                        </Row>
+                        <Row className="roleGroup">
+                            <Form.Item
+                                name="isSuperAdmin"
+								valuePropName="checked"
+                                label="Super Admin?"
+                            >
+								<Switch />
+                            </Form.Item>
+                        </Row>
+                        <Tabs defaultActiveKey="1">
+                            <TabPane tab="Grant Role" key="1">
+                                <Form.Item
                                     name="grant_role"
                                     rules={[
                                         {
@@ -349,16 +372,28 @@ const Users = () => {
                                         onSelectChange={onSelectChange}
                                         render={(item) => item.title}
                                     />
-                                </ProFormText>
-                            </ProCard.TabPane>
-                            {/* <ProCard.TabPane key="tab2" tab="Assign Module">
-                                Two
-                            </ProCard.TabPane> */}
-                        </ProCard>
-                    </ProForm>
-                </ProCard>
-            </ProCard>
-        </PageContainer>
+                                </Form.Item>
+                            </TabPane>
+                            {/* <TabPane tab="Assign Module" key="2">
+                                <Permissions
+                                    userForm={form}
+                                    userPermission={userPermission}
+                                />
+                            </TabPane> */}
+                        </Tabs>
+                        <Button
+                            loading={loadSubmit}
+                            htmlType="submit"
+                            type="primary"
+                            id="buttonSubmit"
+                            style={{ marginTop: 20 }}
+                        >
+                            {saveButton ? 'Save' : 'Update'}
+                        </Button>
+                    </Form>
+                </Col>
+            </Row>
+        </div>
     );
 };
 

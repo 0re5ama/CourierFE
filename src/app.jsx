@@ -1,7 +1,6 @@
 import Footer from '@/components/Footer';
 import RightContent from '@/components/RightContent';
 import { LinkOutlined } from '@ant-design/icons';
-import { SettingDrawer } from '@ant-design/pro-components';
 import { history, Link } from '@umijs/max';
 import { Card } from 'antd';
 import defaultSettings from '../config/defaultSettings';
@@ -18,7 +17,14 @@ const loginPath = '/user/login';
 const fetchMenuData = async () => {
     try {
         const res = await API.menu();
-        return res?.data;
+        return [
+            {
+                component: './ProductTracking/AdminDashboard',
+                name: 'dashboard',
+                path: '/dashboard',
+            },
+            ...res?.data,
+        ];
     } catch (error) {
         history.push(loginPath);
     }
@@ -55,9 +61,11 @@ export const layout = ({ initialState, setInitialState }) => {
     return {
         rightContentRender: () => <RightContent />,
         disableContentMargin: false,
-        waterMarkProps: {
+        /*
+		waterMarkProps: {
             content: initialState?.currentUser?.name,
-        },
+		},
+		*/
         footerRender: () => <Footer />,
         onPageChange: () => {
             const { location } = history;
@@ -101,9 +109,9 @@ export const layout = ({ initialState, setInitialState }) => {
         childrenRender: (children, props) => {
             // if (initialState?.loading) return <PageLoading />;
             return (
-                <>
+                <Card>
                     {children}
-                    {!props.location?.pathname?.includes('/login') && (
+                    {/*!props.location?.pathname?.includes('/login') && (
                         <SettingDrawer
                             disableUrlParams
                             enableDarkTheme
@@ -115,8 +123,8 @@ export const layout = ({ initialState, setInitialState }) => {
                                 }));
                             }}
                         />
-                    )}
-                </>
+                        )*/}
+                </Card>
             );
         },
         menu: {
@@ -125,9 +133,7 @@ export const layout = ({ initialState, setInitialState }) => {
             },
             request: async () => {
                 if (initialState?.currentUser?.userId) {
-                    const menuData = await fetchMenuData(
-                        initialState?.currentUser?.userId
-                    );
+                    const menuData = await fetchMenuData();
                     return menuData;
                 } else {
                     return [];
