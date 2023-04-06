@@ -24,6 +24,12 @@ export default [
         ],
     },
     {
+        component: './ProductTracking/AdminDashboard',
+        icon: 'form',
+        name: 'dashboard',
+        path: '/dashboard',
+    },
+    {
         path: '/Welcome',
         name: 'Welcome',
         icon: 'smile',
@@ -32,7 +38,7 @@ export default [
     {
         path: '/',
         hideInMenu: true,
-        redirect: '/Welcome',
+		redirect: '/dashboard',
     },
     {
         component: './404',
@@ -54,7 +60,12 @@ export default [
                 path: '/security/role',
                 component: './Security/Role',
             },
-
+            {
+                component: './Security/Checkpoint',
+                icon: 'form',
+                name: 'Checkpoints',
+                path: '/security/checkpoint',
+            },
         ],
     },
     {
@@ -73,7 +84,7 @@ export default [
 
     {
         icon: 'form',
-		path: '/ProductTracking',
+        path: '/ProductTracking',
         routes: [
             {
                 name: 'Consignment',
@@ -82,81 +93,73 @@ export default [
                 component: './ProductTracking/Consignment',
             },
             {
-                component: "./ProductTracking/ItemGroup",
-                icon: "form",
-                name: "ItemGroup",
-                path: "/ProductTracking/ItemGroup"
+                component: './ProductTracking/ItemGroup',
+                icon: 'form',
+                name: 'ItemGroup',
+                path: '/ProductTracking/ItemGroup',
             },
             {
-                component: "./ProductTracking/ItemList",
-                icon: "form",
-                name: "ItemList",
-                path: "/ProductTracking/ItemList"
+                component: './ProductTracking/ItemList',
+                icon: 'form',
+                name: 'ItemList',
+                path: '/ProductTracking/ItemList',
             },
             {
-                component: "./ProductTracking/ConsignmentRemarks",
-                icon: "form",
-                name: "ConsignmentRemarks",
+                component: './ProductTracking/ConsignmentRemarks',
+                icon: 'form',
+                name: 'ConsignmentRemarks',
                 hideInMenu: true,
-                path: "/ProductTracking/ConsignmentRemarks"
+                path: '/ProductTracking/ConsignmentRemarks',
             },
             {
-                component: "./ProductTracking/Checkpoint",
-                icon: "form",
-                name: "Checkpoints",
-                path: "/ProductTracking/Checkpoint"
+                component: './ProductTracking/Container',
+                icon: 'form',
+                name: 'Container',
+                path: '/ProductTracking/Container',
             },
             {
-                component: "./ProductTracking/Container",
-                icon: "form",
-                name: "Container",
-                path: "/ProductTracking/Container"
+                component: './ProductTracking/ContainerList',
+                icon: 'form',
+                name: 'ContainerList',
+                path: '/ProductTracking/ContainerList',
             },
             {
-                component: "./ProductTracking/ContainerList",
-                icon: "form",
-                name: "ContainerList",
-                path: "/ProductTracking/ContainerList"
+                component: './ProductTracking/Package',
+                icon: 'form',
+                name: 'Package',
+                path: '/ProductTracking/Package',
             },
             {
-                component: "./ProductTracking/Package",
-                icon: "form",
-                name: "Package",
-                path: "/ProductTracking/Package"
+                component: './ProductTracking/SearchConsignment',
+                icon: 'form',
+                name: 'SearchConsignment',
+                path: '/ProductTracking/SearchConsignment',
             },
             {
-                component: "./ProductTracking/SearchConsignment",
-                icon: "form",
-                name: "SearchConsignment",
-                path: "/ProductTracking/SearchConsignment"
+                component: './ProductTracking/CheckpointUserDashboard',
+                icon: 'form',
+                name: 'CheckpointUserDashboard',
+                path: '/ProductTracking/CheckpointUserDashboard',
             },
             {
-                component: "./ProductTracking/CheckpointUserDashboard",
-                icon: "form",
-                name: "CheckpointUserDashboard",
-                path: "/ProductTracking/CheckpointUserDashboard"
+                component: './ProductTracking/AdminDashboard',
+                icon: 'form',
+                name: 'AdminDashboard',
+                path: '/ProductTracking/AdminDashboard',
             },
             {
-                component: "./ProductTracking/AdminDashboard",
-                icon: "form",
-                name: "AdminDashboard",
-                path: "/ProductTracking/AdminDashboard"
+                component: './ProductTracking/Payment',
+                icon: 'form',
+                name: 'Payment',
+                path: '/ProductTracking/Payment',
             },
             {
-                component: "./ProductTracking/Payment",
-                icon: "form",
-                name: "Payment",
-                path: "/ProductTracking/Payment"
-            },
-            {
-                component:'./ProductTracking/Item',
-                icon:"form",
-                name:"Item",
+                component: './ProductTracking/Item',
+                icon: 'form',
+                name: 'Item',
                 hideInMenu: true,
-                path:'/ProductTracking/Item'
-            }
-
+                path: '/ProductTracking/Item',
+            },
         ],
     },
-
 ];
